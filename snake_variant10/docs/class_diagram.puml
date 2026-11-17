@@ -1,0 +1,51 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+interface Observer {
+  +on_event(event: GameEvent): void
+}
+class Subject {
+  -observers: vector<Observer*>
+  +subscribe(observer): void
+  +unsubscribe(observer): void
+  #notify(event): void
+}
+class Game {
+  -snake: vector<Point>
+  -food: Point
+  -score: int
+  -status: GameStatus
+  +start(): void
+  +advance(): bool
+  +turn(direction): bool
+  +set_status(status, message): void
+}
+class ConsoleObserver {
+  -last_message: string
+  +on_event(event): void
+}
+interface GameState {
+  +handle(controller, command): void
+  +status(): GameStatus
+}
+class MenuState
+class PlayingState
+class PausedState
+class GameOverState
+class GameController {
+  -game: Game&
+  -state: unique_ptr<GameState>
+  +handle(command): void
+  +change_state(state): void
+}
+
+Subject <|-- Game
+Observer <|.. ConsoleObserver
+Subject "1" o-- "0..*" Observer : подписчики
+GameController --> Game : управляет
+GameController o--> GameState : текущее состояние
+GameState <|.. MenuState
+GameState <|.. PlayingState
+GameState <|.. PausedState
+GameState <|.. GameOverState
+@enduml
